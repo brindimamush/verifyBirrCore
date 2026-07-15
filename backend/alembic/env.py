@@ -13,6 +13,7 @@ from app.models.base import Base
 
 # IMPORTANT: You must import all your models here so Alembic can discover them for autogenerate
 import app.models.user
+import app.models.merchant
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

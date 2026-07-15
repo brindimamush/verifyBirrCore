@@ -16,3 +16,4 @@ pwdlib[argon2]==0.2.1
 cryptography==45.0.6
 passlib[argon2]==1.7.4  # Alternative to pwdlib if preferred, but pwdlib is modern
 
+email-validator==2.2.0
