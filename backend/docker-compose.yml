@@ -11,6 +11,13 @@ services:
     depends_on:
       - db
       - redis
+  worker:
+    build: .
+    command: ["python", "-m", "app.workers.callback_worker"]
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5445/verification_db
+    depends_on:
+      - db
 
   db:
     image: postgres:17-alpine

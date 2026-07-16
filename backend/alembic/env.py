@@ -6,17 +6,18 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
-# 1. Import your application configuration and models
-from app.core.config import settings
 from app.models.base import Base
-
+from app.core.config import settings
+# 1. Import your application configuration and models
 # IMPORTANT: You must import all your models here so Alembic can discover them for autogenerate
 import app.models.user
 import app.models.merchant
 import app.models.api_key
 import app.models.invoice
+import app.models.callback  # <-- Add this
 import app.models.verification
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -32,6 +33,9 @@ if config.config_file_name is not None:
 
 # 3. Target the metadata of your DeclarativeBase
 target_metadata = Base.metadata
+# Inside alembic/env.py
+
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
@@ -41,13 +45,15 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(connection=connection, target_metadata=target_metadata,
+                      )
 
     with context.begin_transaction():
         context.run_migrations()

@@ -10,6 +10,7 @@ from app.db.session import get_db
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.verification import VerificationRecord
 from app.schemas.verification import VerificationRequest, VerificationResponse
+from app.models.callback import CallbackJob
 import structlog
 
 router = APIRouter(tags=["Verification Engine"])
@@ -116,8 +117,24 @@ async def verify_payment(
         raw_data=request.parsed_data.model_dump()
     )
     db.add(success_record)
+    callback_payload = {
+        "invoice_id": invoice.id,
+        "token": invoice.token,
+        "amount": float(invoice.amount),
+        "transaction_id": request.transaction_id,
+        "status": "VERIFIED",
+        "metadata": {m.key: m.value for m in invoice.metadata_fields} if hasattr(invoice, 'metadata_fields') else {}
+        }
+
+    callback_job = CallbackJob(
+        invoice_id=invoice.id,
+        url=invoice.callback_url,
+        payload=callback_payload
+    )
+    db.add(callback_job)
     await db.commit()
 
     logger.info("verification_success", transaction_id=request.transaction_id, invoice_id=invoice.id)
     
     return VerificationResponse(status="Verified", reason=None)
+

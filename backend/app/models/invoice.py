@@ -21,7 +21,7 @@ class Invoice(Base):
     receiver = Column(String, nullable=False)
     callback_url = Column(String, nullable=False)
     token = Column(String, unique=True, index=True, nullable=False)
-    status = Column(Enum(InvoiceStatus), default=InvoiceStatus.PENDING, nullable=False)
+    status = Column(Enum(InvoiceStatus, name="invoicestatus"), default=InvoiceStatus.PENDING, nullable=False)
     
     expires_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
