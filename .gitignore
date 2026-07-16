@@ -1,0 +1,76 @@
+# ==========================================
+# Flutter & Dart
+# ==========================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+dart_tool/
+.pub-cache/
+.pub-snapshots/
+.dart_tool/
+*.lock
+*.rpm
+*.deb
+*.apk
+*.app
+*.ipa
+*.xarchive
+.ios/
+.android/
+.linux/
+.windows/
+.macos/
+.web/
+
+# ==========================================
+# Python & FastAPI
+# ==========================================
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution & Packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+
+# Database & Logs
+*.sqlite3
+*.log
+local.db
+
+# ==========================================
+# IDEs & OS Files
+# ==========================================
+# VS Code
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# IntelliJ / PyCharm
+.idea/
+
+# Mac / Windows system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==========================================
+# Local Secrets
+# ==========================================
+.env
+*.secret
+*.key
