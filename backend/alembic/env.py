@@ -16,6 +16,7 @@ import app.models.user
 import app.models.merchant
 import app.models.api_key
 import app.models.invoice
+import app.models.verification
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
