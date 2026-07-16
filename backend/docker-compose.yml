@@ -3,9 +3,11 @@ services:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/verification_db
-      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5445/verification_db
+      - REDIS_URL=redis://redis:6380/0
     depends_on:
       - db
       - redis
@@ -17,9 +19,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=verification_db
     ports:
-      - "5432:5432"
+      - "5445:5445"
 
   redis:
     image: redis:8-alpine
     ports:
-      - "6379:6379"
+      - "6380:6380"

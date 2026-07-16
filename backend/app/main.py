@@ -3,6 +3,7 @@ from app.api.health import router as health_router
 from app.api.auth import router as auth_router
 from app.api.merchants import router as merchants_router
 from app.api.api_keys import router as api_keys_router
+from app.api.invoices import router as invoices_router
 
 import structlog
 
@@ -18,3 +19,4 @@ app.include_router(health_router, tags=["Health"])
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(merchants_router, tags=["Merchants"])
 app.include_router(api_keys_router, tags=["API Keys"])
+app.include_router(invoices_router, tags=["Invoice Service"])
