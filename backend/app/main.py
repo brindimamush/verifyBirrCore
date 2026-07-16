@@ -5,6 +5,7 @@ from app.api.merchants import router as merchants_router
 from app.api.api_keys import router as api_keys_router
 from app.api.invoices import router as invoices_router
 from app.api.verification import router as verification_router
+from app.api.subscriptions import router as subscriptions_router
 
 import structlog
 
@@ -22,3 +23,4 @@ app.include_router(merchants_router, tags=["Merchants"])
 app.include_router(api_keys_router, tags=["API Keys"])
 app.include_router(invoices_router, tags=["Invoice Service"])
 app.include_router(verification_router, tags=["Verification"])
+app.include_router(subscriptions_router, tags=["Subscriptions"])

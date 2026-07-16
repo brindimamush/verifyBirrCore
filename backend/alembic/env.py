@@ -12,9 +12,10 @@ from app.core.config import settings
 # IMPORTANT: You must import all your models here so Alembic can discover them for autogenerate
 import app.models.user
 import app.models.merchant
+import app.models.subscription
 import app.models.api_key
 import app.models.invoice
-import app.models.callback  # <-- Add this
+import app.models.callback
 import app.models.verification
 
 
