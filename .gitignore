@@ -75,5 +75,66 @@ Desktop.ini
 *.secret
 *.key
 env.local
-env
+
 ./backend/.env
+
+# ==============================================================================
+# Global System & IDE Configs
+# ==============================================================================
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.project
+.classpath
+.settings/
+
+# ==============================================================================
+# Backend Architecture (FastAPI / Python)
+# ==============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+pure_sys_envs/
+
+# Testing, Linting, and Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.black
+
+# Database local instances (SQLite/Logs)
+*.db
+*.sqlite3
+
+
+# ==============================================================================
+# Security & Secret Management (Applies Globally)
+# ==============================================================================
+# Never commit credentials across any of the platforms
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.secret

@@ -1,0 +1,35 @@
+
+# ==============================================================================
+# Gebtual Stack (Flutter Mobile Application)
+# ==============================================================================
+# Core Flutter/Dart tooling and compiled outputs
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/gebtual/build/
+
+# Android specific local configurations & artifacts
+/gebtual/android/local.properties
+/gebtual/android/key.properties
+/gebtual/android/**/*.keystore
+/gebtual/android/.gradle/
+/gebtual/android/app/release/
+*.apk
+*.aab
+
+# iOS specific local configurations, cocoapods, and cache
+/gebtual/ios/.generated/
+/gebtual/ios/Flutter/Flutter.podspec
+/gebtual/ios/Flutter/Generated.xcconfig
+/gebtual/ios/Flutter/flutter_export_environment.sh
+/gebtual/ios/Pods/
+/gebtual/ios/.symlinks/
+/gebtual/ios/DerivedData/
+*.moved-aside
+Podfile.lock
+
+# Web/Desktop specific Flutter builds
+/gebtual/web/__flutter_build_config
