@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime
 from decimal import Decimal
 from app.models.subscription import PlanTier, SubscriptionStatus
@@ -35,3 +35,16 @@ class SubscriptionCheckoutResponse(BaseModel):
     subscription: SubscriptionResponse
     verification_url: str
     token: str
+
+class SubscriptionPlanCreate(BaseModel):
+    tier: PlanTier
+    name: str
+    price: Decimal = Field(..., ge=0, decimal_places=2)
+    duration_days: int = Field(..., gt=0)
+    is_active: bool = True
+
+class SubscriptionPlanUpdate(BaseModel):
+    tier: Optional[PlanTier] = None
+    name: Optional[str] = None
+    price: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
+    duration_days: Optional[int] = Field(None, gt=0)
