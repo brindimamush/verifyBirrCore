@@ -109,6 +109,9 @@ async def verify_payment(
 
     # 10. Store verification result & Update Invoice
     invoice.status = InvoiceStatus.VERIFIED
+
+    # Generate a stable event identifier using the invoice token and txn ID
+    stable_event_id = f"evt_{invoice.token}_{request.transaction_id}"
     
     success_record = VerificationRecord(
         invoice_id=invoice.id,
@@ -119,6 +122,7 @@ async def verify_payment(
     )
     db.add(success_record)
     callback_payload = {
+        "event_id": stable_event_id,
         "invoice_id": invoice.id,
         "token": invoice.token,
         "amount": float(invoice.amount),

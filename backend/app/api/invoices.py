@@ -1,5 +1,7 @@
 # File: app/api/invoices.py
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Response
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -11,6 +13,7 @@ from app.db.session import get_db
 from app.models.merchant import Merchant
 from app.models.invoice import Invoice, InvoiceMetadata, InvoiceStatus
 from app.schemas.invoice import InvoiceCreate, InvoiceResponse, PublicInvoiceLookup
+from app.models.idempotency import IdempotencyKey
 from app.api.deps import get_merchant_from_api_key
 from app.core.config import settings
 
@@ -20,49 +23,62 @@ router = APIRouter(prefix="/v1/invoices", tags=["Invoice Service"])
 async def create_invoice(
     invoice_in: InvoiceCreate,
     current_merchant: Merchant = Depends(get_merchant_from_api_key),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key")
 ):
-    # Calculate explicit expiration time window
-    expiry_minutes = invoice_in.expires_in_minutes or settings.DEFAULT_INVOICE_EXPIRE_MINUTES
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes)
+    """
+    Create a new invoice. Supports idempotent requests to prevent duplicate 
+    invoice generation on network retries.
+    """
+    # 1. Check for an existing Idempotency Key for this merchant
+    if idempotency_key:
+        stmt = select(IdempotencyKey).where(
+            IdempotencyKey.idempotency_key == idempotency_key,
+            IdempotencyKey.merchant_id == current_merchant.id
+        )
+        existing_key = (await db.execute(stmt)).scalars().first()
+        
+        # If found, short-circuit and return the cached response
+        if existing_key:
+            return JSONResponse(
+                status_code=existing_key.response_status,
+                content=existing_key.response_body
+            )
 
-    # Generate non-guessable secure URL tokens safely decoupling primary database sequences
-    secure_token = secrets.token_urlsafe(16)
-    verification_url = f"{settings.BASE_VERIFICATION_URL}/{secure_token}"
-
-    db_invoice = Invoice(
+    # 2. Standard Invoice Creation Logic
+    # Generate a unique secure token for the checkout URL / reference
+    invoice_token = secrets.token_urlsafe(16)
+    
+    new_invoice = Invoice(
         merchant_id=current_merchant.id,
         amount=invoice_in.amount,
-        receiver=invoice_in.receiver,
-        callback_url=invoice_in.callback_url,
-        token=secure_token,
-        status=InvoiceStatus.PENDING,
-        expires_at=expires_at
+        currency=invoice_in.currency,
+        description=invoice_in.description,
+        token=invoice_token,
+        status="PENDING"
     )
-    db.add(db_invoice)
-    await db.flush()  # Extract structural model IDs securely
-
-    # Map transaction metadata dynamically
-    if invoice_in.metadata:
-        metadata_records = [
-            InvoiceMetadata(invoice_id=db_invoice.id, key=k, value=str(v))
-            for k, v in invoice_in.metadata.items()
-        ]
-        db.add_all(metadata_records)
-
-    await db.commit()
-
-    # Eager load relationships for response schema serialization parsing
-    stmt = (
-        select(Invoice)
-        .options(selectinload(Invoice.metadata_fields))
-        .where(Invoice.id == db_invoice.id)
-    )
-    result = await db.execute(stmt)
-    final_invoice = result.scalars().first()
     
-    # Attach tracking values dynamically onto database model attributes
-    final_invoice.verification_url = verification_url
+    db.add(new_invoice)
+    await db.commit()
+    await db.refresh(new_invoice)
+    
+    final_invoice = new_invoice
+
+    # Prepare the response data for both the API return and the idempotency cache
+    response_data = jsonable_encoder(final_invoice)
+
+    # 3. Save the Idempotency Key on successful creation
+    if idempotency_key:
+        db_idem_key = IdempotencyKey(
+            merchant_id=current_merchant.id,
+            idempotency_key=idempotency_key,
+            response_status=status.HTTP_201_CREATED,
+            response_body=response_data,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=1) # Keys expire after 24h
+        )
+        db.add(db_idem_key)
+        await db.commit()
+
     return final_invoice
 
 @router.get("/{id}", response_model=InvoiceResponse)

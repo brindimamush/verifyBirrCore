@@ -103,6 +103,8 @@ async def subscription_payment_webhook(request: Request, db: AsyncSession = Depe
     if not sub_link:
         raise HTTPException(status_code=404, detail="Subscription link not found.")
 
+    if sub_link.is_processed:
+        return {"status": "Already processed", "message": "Ignored duplicate webhook delivery."}
     # Fetch Subscription and Plan to calculate expiration
     sub_stmt = (select(Subscription).where(Subscription.id == sub_link.subscription_id).with_for_update())
     sub_result = await db.execute(sub_stmt)
@@ -122,5 +124,6 @@ async def subscription_payment_webhook(request: Request, db: AsyncSession = Depe
         subscription.current_period_start = now
         subscription.current_period_end = now + timedelta(days=plan.duration_days)
 
+    sub_link.is_processed = True
     await db.commit()
     return {"status": "Subscription activated successfully"}
