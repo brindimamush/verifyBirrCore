@@ -104,7 +104,7 @@ async def subscription_payment_webhook(request: Request, db: AsyncSession = Depe
         raise HTTPException(status_code=404, detail="Subscription link not found.")
 
     # Fetch Subscription and Plan to calculate expiration
-    sub_stmt = select(Subscription).where(Subscription.id == sub_link.subscription_id)
+    sub_stmt = (select(Subscription).where(Subscription.id == sub_link.subscription_id).with_for_update())
     sub_result = await db.execute(sub_stmt)
     subscription = sub_result.scalars().first()
     

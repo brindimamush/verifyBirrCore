@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
+from sqlalchemy import update
 from typing import List
 
 from app.db.session import get_db
-from app.models.user import User, Role
+from app.models.user import User, Role, UserSession, RefreshToken
 from app.models.merchant import Merchant
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.verification import VerificationRecord
@@ -171,14 +172,34 @@ async def list_all_users(limit: int = 50, offset: int = 0, db: AsyncSession = De
 @router.patch("/users/{user_id}/status", response_model=UserResponse, dependencies=[admin_dependency])
 async def toggle_user_status(user_id: int, is_active: bool, db: AsyncSession = Depends(get_db)):
     """Allows administrators to activate or deactivate a user account."""
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
-    
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    user.is_active = is_active
-    await db.commit()
+    async with db.begin():
+        result = await db.execute(select(User).where(User.id == user_id))
+        user = result.scalars().first()
+        
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
+        user.is_active = is_active
+        
+        # If disabling the user, forcefully invalidate all active sessions
+        if not is_active:
+            # 1. Deactivate sessions
+            await db.execute(
+                update(UserSession)
+                .where(UserSession.user_id == user_id)
+                .values(is_active=False)
+            )
+            
+            # 2. Revoke associated refresh tokens by joining through UserSession
+            await db.execute(
+                update(RefreshToken)
+                .where(
+                    RefreshToken.session_id.in_(
+                        select(UserSession.id).where(UserSession.user_id == user_id)
+                    )
+                )
+                .values(is_revoked=True)
+            )
+            
     await db.refresh(user)
-    
     return user

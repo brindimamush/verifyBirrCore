@@ -35,9 +35,10 @@ async def verify_payment(
         await db.commit()
         return VerificationResponse(status="Failed", reason=reason)
 
+    async with db.begin():
     # 1. Validate token & 2. Validate invoice exists
-    stmt = select(Invoice).options(selectinload(Invoice.merchant)).where(Invoice.token == request.token)
-    invoice = (await db.execute(stmt)).scalars().first()
+        stmt = (select(Invoice).options(selectinload(Invoice.merchant)).where(Invoice.token == request.token).with_for_update())
+        invoice = (await db.execute(stmt)).scalars().first()
     
     if not invoice:
         return await fail_verification("Invalid token or invoice not found.")
