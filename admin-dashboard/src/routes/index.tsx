@@ -1,39 +1,35 @@
-import React from "react"
-import { createBrowserRouter, Navigate } from "react-router-dom"
-import { AppLayout } from "../layouts/AppLayout"
+
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { ProtectedRoute } from "../components/layout/ProtectedRoute"
-import { NotFoundPage } from "../pages/NotFoundPage"
-import { PlaceholderPage } from "../pages/PlaceholderPage"
+import { LoginPage } from '@/pages/auth/LoginPage';
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    path: '/login',
+    element: <LoginPage />,
   },
   {
+    path: '/',
     element: <ProtectedRoute />,
     children: [
       {
-        element: <AppLayout />,
+        // element: <AppLayout />, // From Phase 3
         children: [
-          { path: "dashboard", element: <PlaceholderPage title="Dashboard Overview" /> },
-          { path: "merchants", element: <PlaceholderPage title="Merchant Management" /> },
-          { path: "users", element: <PlaceholderPage title="User Accounts" /> },
-          { path: "subscriptions", element: <PlaceholderPage title="Subscription Controls" /> },
-          { path: "invoices", element: <PlaceholderPage title="Invoice Monitoring" /> },
-          { path: "verifications", element: <PlaceholderPage title="Verification Logs" /> },
-          { path: "callbacks", element: <PlaceholderPage title="Callback Webhook Engine Queue" /> },
-          { path: "api-keys", element: <PlaceholderPage title="API Identity Keys" /> },
+          {
+            index: true,
+            element: <div>Dashboard Overview (Phase 4)</div>,
+          },
+          // Future protected routes...
         ],
       },
     ],
   },
   {
-    path: "404",
-    element: <NotFoundPage />,
+    path: '*',
+    element: <div>404 - Not Found</div>, // Map to your 404 page from Phase 1
   },
-  {
-    path: "*",
-    element: <Navigate to="/404" replace />,
-  },
-])
+]);
+
+export function AppRouter() {
+  return <RouterProvider router={router} />;
+}

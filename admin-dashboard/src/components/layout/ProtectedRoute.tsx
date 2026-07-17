@@ -1,19 +1,20 @@
-import React from "react"
-import { Navigate, Outlet } from "react-router-dom"
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
 
-export const ProtectedRoute: React.FC = () => {
-  // Phase 1 Mock Auth Context (Simulating authenticated Admin state)
-  // Phase 2 will implement explicit JWT parsing & backend role evaluation
-  const isAuthenticated = true 
-  const userRole = "admin" // Options: admin, merchant
+export function ProtectedRoute() {
+  const { isAuthenticated, user } = useAuthStore();
+  const location = useLocation();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (userRole !== "admin") {
-    return <Navigate to="/404" replace />
+  // Strict role validation: Admin ONLY
+  if (user.role !== 'admin') {
+    // If a merchant somehow logs in, clear auth and send them away
+    useAuthStore.getState().clearAuth();
+    return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />
+  return <Outlet />;
 }
