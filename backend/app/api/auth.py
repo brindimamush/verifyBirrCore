@@ -8,7 +8,7 @@ from app.schemas.auth import UserCreate, TokenResponse, UserResponse, RefreshTok
 from app.core.security import get_password_hash, verify_password, create_access_token, generate_refresh_token
 from app.api.deps import get_current_user
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/v1/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):

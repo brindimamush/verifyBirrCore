@@ -5,6 +5,7 @@ import { AppLayout } from "../layouts/AppLayout"
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage'; // Assuming this exists based on your setup
 import { MerchantsPage } from '@/pages/MerchantsPage'; // <-- New Import
+import { UsersPage } from '@/pages/UsersPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
           {
             path: 'merchants', // <-- Added Merchants Route
             element: <MerchantsPage />,
+          },
+          {
+            path: 'users', // <-- Added Phase 6 Users Route
+            element: <UsersPage />,
           },
           // Future protected routes...
         ],

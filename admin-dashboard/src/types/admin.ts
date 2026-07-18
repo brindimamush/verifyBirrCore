@@ -21,3 +21,15 @@ export interface Merchant {
   profile: MerchantProfile;
   created_at: string;
 }
+export interface SystemUser {
+  id: number;
+  email: string;
+  role: 'admin' | 'merchant';
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PaginatedUsers {
+  items: SystemUser[];
+  total: number;
+}
