@@ -6,6 +6,8 @@ import secrets
 
 from app.db.session import get_db
 from app.models.user import User, Role
+from app.models.api_key import MerchantApiKey
+from app.core.security import get_password_hash
 from app.models.merchant import Merchant
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.subscription import Subscription, SubscriptionPlan, SubscriptionInvoice, SubscriptionStatus
@@ -125,5 +127,27 @@ async def subscription_payment_webhook(request: Request, db: AsyncSession = Depe
         subscription.current_period_end = now + timedelta(days=plan.duration_days)
 
     sub_link.is_processed = True
+    existing_key = await db.execute(
+        select(MerchantApiKey).where(
+            MerchantApiKey.merchant_id == subscription.merchant_id,
+            MerchantApiKey.is_revoked == False
+        )
+    )
+    if not existing_key.scalars().first():
+        client_id = secrets.token_urlsafe(16)
+        secret = secrets.token_urlsafe(32)
+        plaintext_key = f"sk_{client_id}_{secret}" # The bot must fetch/display this somewhere securely
+        display_prefix = f"sk_{client_id[:4]}...{secret[-4:]}"
+        
+        db_api_key = MerchantApiKey(
+            merchant_id=subscription.merchant_id,
+            name=f"Auto-generated for {plan.name}",
+            client_id=client_id,
+            hashed_secret=get_password_hash(secret),
+            prefix=display_prefix
+        )
+        db.add(db_api_key)
+        # Note: You can emit an event or save the plaintext_key to a temporary table
+        # so the bot can fetch it immediately after the webhook completes.
     await db.commit()
     return {"status": "Subscription activated successfully"}

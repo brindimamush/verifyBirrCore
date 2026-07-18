@@ -3,6 +3,8 @@ from pydantic import PostgresDsn, RedisDsn
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Payment Verification API"
+    ADMIN_TELEBIRR_NAME: str = "Admin" # Or your registered Telebirr business name
+    ADMIN_TELEBIRR_NUMBER: str = "09XXXXXXXX"
     # Add to app/core/config.py within the Settings class
     PLATFORM_MERCHANT_ID: int = 1  # The ID of the platform's own merchant record
     BASE_API_URL: str = "https://api.yourdomain.com"

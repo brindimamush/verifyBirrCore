@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, BigInteger
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.models.base import Base
@@ -23,6 +23,9 @@ class MerchantProfile(Base):
     business_name = Column(String, nullable=False)
     business_email = Column(String, unique=True, index=True, nullable=False)
     phone_number = Column(String, nullable=True)
+    telegram_id = Column(BigInteger, unique=True, index=True, nullable=False)
+    telebirr_name = Column(String, nullable=False)
+    telebirr_number = Column(String, nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
     # Relationships

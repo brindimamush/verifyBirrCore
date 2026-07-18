@@ -7,6 +7,7 @@ from app.api.invoices import router as invoices_router
 from app.api.verification import router as verification_router
 from app.api.subscriptions import router as subscriptions_router
 from app.api.admin import router as admin_router
+from app.api.bot import router as bot_router
 
 import structlog
 
@@ -26,3 +27,4 @@ app.include_router(invoices_router, tags=["Invoice Service"])
 app.include_router(verification_router, tags=["Verification"])
 app.include_router(subscriptions_router, tags=["Subscriptions"])
 app.include_router(admin_router, tags=["Admin Dashboard"])
+app.include_router(bot_router, tags=["Telegram Bot Integration"])
