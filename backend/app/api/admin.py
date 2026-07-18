@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from sqlalchemy import update
+from sqlalchemy.orm import selectinload
 from typing import List
+
 
 from app.db.session import get_db
 from app.models.user import User, Role, UserSession, RefreshToken
@@ -13,6 +15,7 @@ from app.models.callback import CallbackJob, CallbackStatus
 from app.models.subscription import SubscriptionPlan, Subscription
 from app.api.deps import require_role
 from app.schemas.auth import UserResponse
+from app.schemas.merchant import MerchantResponse
 from app.schemas.admin import PlatformStatsResponse
 from app.schemas.subscription import SubscriptionPlanResponse, SubscriptionPlanCreate, SubscriptionPlanUpdate
 
@@ -203,3 +206,69 @@ async def toggle_user_status(user_id: int, is_active: bool, db: AsyncSession = D
             
     await db.refresh(user)
     return user
+
+@router.get("/merchants", response_model=List[MerchantResponse], dependencies=[admin_dependency])
+async def list_all_merchants(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)):
+    """
+    Retrieves a paginated list of all system merchants with profiles eagerly loaded.
+    """
+    stmt = (
+        select(Merchant)
+        .options(selectinload(Merchant.profile))
+        .limit(limit)
+        .offset(offset)
+    )
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+@router.patch("/merchants/{merchant_id}/status", response_model=MerchantResponse, dependencies=[admin_dependency])
+async def toggle_merchant_status(merchant_id: int, is_active: bool, db: AsyncSession = Depends(get_db)):
+    """
+    Toggles a merchant's active status. 
+    Guarantees ACID compliance: If a merchant is deactivated, all linked sessions 
+    and refresh tokens are invalidated inside a single atomic transaction block.
+    """
+    # Enforce atomic transaction boundaries manually
+    async with db.begin():
+        # 1. Fetch merchant row with pessimistic locking to avoid race conditions
+        stmt = (
+            select(Merchant)
+            .options(selectinload(Merchant.profile))
+            .where(Merchant.id == merchant_id)
+            .with_for_update()
+        )
+        result = await db.execute(stmt)
+        merchant = result.scalars().first()
+        
+        if not merchant:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Merchant not found")
+        
+        # 2. Apply status update
+        merchant.is_active = is_active
+        
+        # 3. Cascading Security Invalidation: If deactivated, drop all active auth footprints
+        if not is_active:
+            user_id = merchant.user_id
+            
+            # Deactivate all active sessions for the merchant's underlying user
+            await db.execute(
+                update(UserSession)
+                .where(UserSession.user_id == user_id)
+                .values(is_active=False)
+            )
+            
+            # Revoke all sub-tier refresh tokens belonging to those sessions
+            await db.execute(
+                update(RefreshToken)
+                .where(
+                    RefreshToken.session_id.in_(
+                        select(UserSession.id).where(UserSession.user_id == user_id)
+                    )
+                )
+                .values(is_revoked=True)
+            )
+            
+    # Context manager closes 'async with db.begin()', executing an atomic COMMIT or ROLLBACK if an error occurs.
+    await db.refresh(merchant)
+    return merchant

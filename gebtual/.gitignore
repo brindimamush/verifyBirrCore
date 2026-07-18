@@ -1,35 +1,70 @@
-
-# ==============================================================================
-# Gebtual Stack (Flutter Mobile Application)
-# ==============================================================================
-# Core Flutter/Dart tooling and compiled outputs
+# -------------------------------------------------------------------------
+# Flutter / Dart Specific
+# -------------------------------------------------------------------------
 .dart_tool/
-.packages
 .flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/gebtual/build/
+build/
 
-# Android specific local configurations & artifacts
-/gebtual/android/local.properties
-/gebtual/android/key.properties
-/gebtual/android/**/*.keystore
-/gebtual/android/.gradle/
-/gebtual/android/app/release/
-*.apk
-*.aab
+# If you are developing a library/package, you might want to ignore pubspec.lock.
+# For applications, it is highly recommended to commit pubspec.lock.
+# pubspec.lock
 
-# iOS specific local configurations, cocoapods, and cache
-/gebtual/ios/.generated/
-/gebtual/ios/Flutter/Flutter.podspec
-/gebtual/ios/Flutter/Generated.xcconfig
-/gebtual/ios/Flutter/flutter_export_environment.sh
-/gebtual/ios/Pods/
-/gebtual/ios/.symlinks/
-/gebtual/ios/DerivedData/
-*.moved-aside
-Podfile.lock
+# -------------------------------------------------------------------------
+# Android Specific
+# -------------------------------------------------------------------------
+android/**/local.properties
+android/generated_plugin_registrant.dart
+android/.gradle/
+android/app/tasks/
 
-# Web/Desktop specific Flutter builds
-/gebtual/web/__flutter_build_config
+# Exclude sensitive signing keys
+*.keystore
+*.jks
+**/android/key.properties
+
+# -------------------------------------------------------------------------
+# iOS / macOS Specific
+# -------------------------------------------------------------------------
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/GeneratedPluginRegistrant.h
+ios/GeneratedPluginRegistrant.m
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/
+
+# CocoaPods - Log files and build caches
+.sandbox.log
+Pods/
+CocoaPods.podfile.allocations.log
+
+# -------------------------------------------------------------------------
+# Web Specific
+# -------------------------------------------------------------------------
+.web_plugin_registrant.dart
+
+# -------------------------------------------------------------------------
+# Development Tools & IDEs
+# -------------------------------------------------------------------------
+# Visual Studio Code
+.vscode/
+!.vscode/extensions.json
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# -------------------------------------------------------------------------
+# Environment Variables & Secrets
+# -------------------------------------------------------------------------
+.env
+.env.*
