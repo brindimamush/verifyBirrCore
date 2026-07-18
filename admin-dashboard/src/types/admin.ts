@@ -6,3 +6,18 @@ export interface PlatformStats {
   failed_verifications: number;
   pending_callbacks: number;
 }
+
+export interface MerchantProfile {
+  id: number;
+  business_name: string;
+  contact_email: string;
+  phone_number?: string;
+}
+
+export interface Merchant {
+  id: number;
+  user_id: number;
+  is_active: boolean;
+  profile: MerchantProfile;
+  created_at: string;
+}

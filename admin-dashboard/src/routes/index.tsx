@@ -1,7 +1,11 @@
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { ProtectedRoute } from "../components/layout/ProtectedRoute"
+import { AppLayout } from "../layouts/AppLayout"
 import { LoginPage } from '@/pages/auth/LoginPage';
+import { DashboardPage } from '@/pages/DashboardPage'; // Assuming this exists based on your setup
+import { MerchantsPage } from '@/pages/MerchantsPage'; // <-- New Import
+import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
@@ -13,11 +17,15 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        // element: <AppLayout />, // From Phase 3
+        element: <AppLayout />, // <-- Uncommented from Phase 3
         children: [
           {
             index: true,
-            element: <div>Dashboard Overview (Phase 4)</div>,
+            element: <DashboardPage />,
+          },
+          {
+            path: 'merchants', // <-- Added Merchants Route
+            element: <MerchantsPage />,
           },
           // Future protected routes...
         ],
@@ -26,7 +34,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <div>404 - Not Found</div>, // Map to your 404 page from Phase 1
+    element: <NotFoundPage />, 
   },
 ]);
 
