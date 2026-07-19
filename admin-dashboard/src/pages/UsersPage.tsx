@@ -12,7 +12,12 @@ export const UsersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
   const limit = 10;
-
+  const safelyFormatDate = (dateString: string | null | undefined): string => {
+  console.log("safelyFormatDate received raw value:", dateString);
+  if (!dateString) return '—';
+  const date = new Date(dateString);
+  return !isNaN(date.getTime()) ? format(date, 'MMM dd, yyyy') : '—';
+  };
   // Dialog State
   const [dialogConfig, setDialogConfig] = useState<{
     isOpen: boolean;
@@ -39,9 +44,9 @@ export const UsersPage: React.FC = () => {
       // Optimistic update
       queryClient.setQueryData(['admin', 'users', page, searchTerm], (old: any) => ({
         ...old,
-        items: old?.items.map((user: SystemUser) => 
+        items: old?.items?.map((user: SystemUser) => 
           user.id === id ? { ...user, is_active: isActive } : user
-        )
+        ) || []
       }));
 
       return { previousData };
@@ -120,7 +125,9 @@ export const UsersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
-              {data?.items.map((user) => (
+              {data?.items?.map((user) => (
+                
+                
                 <tr key={user.id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.email}</div>
@@ -145,9 +152,9 @@ export const UsersPage: React.FC = () => {
                       {user.is_active ? 'Enabled' : 'Disabled'}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                    {format(new Date(user.created_at), 'MMM dd, yyyy HH:mm')}
-                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
+  {safelyFormatDate(user.created_at)}
+</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
                       <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800">
@@ -184,7 +191,7 @@ export const UsersPage: React.FC = () => {
           {data && data.total > limit && (
             <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-3 dark:border-slate-800 dark:bg-slate-950">
               <span className="text-sm text-slate-500">
-                Showing {page * limit + 1} to Math.min((page + 1) * limit, data.total) of {data.total}
+                Showing {page * limit + 1} to {Math.min((page + 1) * limit, data.total)} of {data.total}
               </span>
               <div className="flex gap-2">
                 <button

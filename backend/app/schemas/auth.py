@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
+from datetime import datetime
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -30,6 +31,7 @@ class UserResponse(BaseModel):
     id: int
     email: str
     role: str
+    created_at: datetime
     is_active: bool
 
     class Config:

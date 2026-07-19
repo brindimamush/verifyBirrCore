@@ -44,7 +44,7 @@ export const MerchantsPage: React.FC = () => {
     // Confirm success
     onSuccess: (data) => {
       toast.success('Status Updated', {
-        description: `${data.profile.business_name} is now ${data.is_active ? 'Active' : 'Inactive'}.`,
+        description: `${data.profile?.business_name} is now ${data.is_active ? 'Active' : 'Inactive'}.`,
       });
     },
     
@@ -93,11 +93,11 @@ export const MerchantsPage: React.FC = () => {
             {merchants?.map((merchant) => (
               <tr key={merchant.id} className="hover:bg-slate-50 transition-colors">
                 <td className="whitespace-nowrap px-6 py-4">
-                  <div className="text-sm font-medium text-slate-900">{merchant.profile.business_name}</div>
+                  <div className="text-sm font-medium text-slate-900">{merchant.profile?.business_name}</div>
                   <div className="text-xs text-slate-500">ID: {merchant.id}</div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  <div className="text-sm text-slate-900">{merchant.profile.contact_email}</div>
+                  <div className="text-sm text-slate-900">{merchant.profile?.contact_email}</div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${

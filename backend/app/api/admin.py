@@ -4,6 +4,7 @@ from sqlalchemy import func, select
 from sqlalchemy import update
 from sqlalchemy.orm import selectinload
 from typing import List
+from pydantic import BaseModel
 
 
 from app.db.session import get_db
@@ -18,6 +19,10 @@ from app.schemas.auth import UserResponse
 from app.schemas.merchant import MerchantResponse
 from app.schemas.admin import PlatformStatsResponse
 from app.schemas.subscription import SubscriptionPlanResponse, SubscriptionPlanCreate, SubscriptionPlanUpdate
+
+class PaginatedUsersResponse(BaseModel):
+    items: List[UserResponse]
+    total: int
 
 router = APIRouter(prefix="/v1/admin", tags=["Admin Dashboard"])
 
@@ -166,11 +171,40 @@ async def delete_subscription_plan(id: int, db: AsyncSession = Depends(get_db)):
         await db.commit()
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@router.get("/users", response_model=List[UserResponse], dependencies=[admin_dependency])
-async def list_all_users(limit: int = 50, offset: int = 0, db: AsyncSession = Depends(get_db)):
-    """Retrieves a paginated list of all platform users."""
-    result = await db.execute(select(User).limit(limit).offset(offset))
-    return result.scalars().all()
+@router.get("/users", response_model=PaginatedUsersResponse, dependencies=[admin_dependency])
+async def list_all_users(
+    page: int = 0, 
+    limit: int = 50, 
+    search: str = None, 
+    db: AsyncSession = Depends(get_db)
+):
+    """Retrieves a paginated and searchable list of all platform users."""
+    # Convert frontend 0-indexed page to database offset
+    offset = page * limit
+    
+    # Base queries
+    stmt = select(User)
+    count_stmt = select(func.count(User.id))
+    
+    # Handle the optional search filter if text is provided
+    if search:
+        # Adjust 'email' or 'username' depending on your actual User model attributes
+        search_filter = User.email.ilike(f"%{search}%")
+        stmt = stmt.where(search_filter)
+        count_stmt = count_stmt.where(search_filter)
+        
+    # Get total count matching the query
+    total_count = await db.scalar(count_stmt)
+    
+    # Fetch paginated items
+    result = await db.execute(stmt.limit(limit).offset(offset))
+    users = result.scalars().all()
+    
+    # Return the exact object structure the frontend expects
+    return {
+        "items": users,
+        "total": total_count or 0
+    }
 
 @router.patch("/users/{user_id}/status", response_model=UserResponse, dependencies=[admin_dependency])
 async def toggle_user_status(user_id: int, is_active: bool, db: AsyncSession = Depends(get_db)):

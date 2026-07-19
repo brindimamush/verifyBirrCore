@@ -7,6 +7,7 @@ import { DashboardPage } from '@/pages/DashboardPage'; // Assuming this exists b
 import { MerchantsPage } from '@/pages/MerchantsPage'; // <-- New Import
 import { UsersPage } from '@/pages/UsersPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
+            path: 'dashboard',
+            element: <DashboardPage />, 
+          },
+          {
             path: 'merchants', // <-- Added Merchants Route
             element: <MerchantsPage />,
           },
@@ -32,6 +37,10 @@ export const router = createBrowserRouter([
             path: 'users', // <-- Added Phase 6 Users Route
             element: <UsersPage />,
           },
+          {
+            path: 'subscriptions',
+            element: <PlaceholderPage title="Subscriptions" />,
+          }
           // Future protected routes...
         ],
       },
