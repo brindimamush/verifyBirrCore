@@ -12,11 +12,27 @@ export const apiClient = axios.create({
 });
 
 // Optional: Add request interceptor for Auth tokens if required by Phase 2/3
+// Optional: Add request interceptor for Auth tokens if required by Phase 2/3
+// Optional: Add request interceptor for Auth tokens if required by Phase 2/3
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('admin_token'); // Adjust key as per your auth setup
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Updated to use the correct key name from your storage
+    const storageKey = 'admin-auth-storage'; 
+    const authStorageStr = localStorage.getItem(storageKey);
+    
+    if (authStorageStr) {
+      try {
+        const authData = JSON.parse(authStorageStr);
+        
+        // Ensure this matches the structure inside your 'admin-auth-storage'
+        const token = authData?.state?.accessToken || authData?.accessToken;
+        
+        if (token && config.headers) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (error) {
+        console.error('Failed to parse auth token:', error);
+      }
     }
     return config;
   },
@@ -24,7 +40,6 @@ apiClient.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 // Optional: Add response interceptor for global error handling
 apiClient.interceptors.response.use(
   (response) => response,
