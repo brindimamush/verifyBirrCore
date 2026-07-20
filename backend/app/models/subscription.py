@@ -45,7 +45,7 @@ class Subscription(Base):
 
     merchant = relationship("Merchant", backref="subscriptions")
     plan = relationship("SubscriptionPlan")
-    invoices = relationship("SubscriptionInvoice", back_populates="subscription")
+    invoices = relationship("SubscriptionInvoice", back_populates="subscription", cascade="all, delete-orphan")
 
 class SubscriptionInvoice(Base):
     __tablename__ = "subscription_invoices"
