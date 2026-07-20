@@ -2,7 +2,7 @@ import React from "react"
 import { NavLink } from "react-router-dom"
 import { 
   LayoutDashboard, Users, ShieldCheck, CreditCard, 
-  RefreshCw, Key, ShieldAlert, FileText, X 
+  RefreshCw, Key, ShieldAlert, FileText, X, TrendingUp
 } from "lucide-react"
 
 interface SidebarProps {
@@ -16,6 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { to: "/merchants", label: "Merchants Profile", icon: ShieldCheck },
     { to: "/users", label: "User Management", icon: Users },
     { to: "/subscriptions", label: "Subscription Tiers", icon: CreditCard },
+    { to: "/subscriptions/analytics", label: "Subscription Analytics", icon: TrendingUp },
     { to: "/invoices", label: "Invoice History", icon: FileText },
     { to: "/verifications", label: "Verification Center", icon: ShieldAlert },
     { to: "/callbacks", label: "Callback Engine Queue", icon: RefreshCw },

@@ -6,6 +6,8 @@ import { LoginPage } from '@/pages/auth/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage'; // Assuming this exists based on your setup
 import { MerchantsPage } from '@/pages/MerchantsPage'; // <-- New Import
 import { UsersPage } from '@/pages/UsersPage';
+import { SubscriptionPlansPage } from '@/pages/SubscriptionPlansPage';
+import { SubscriptionAnalyticsPage } from '@/pages/SubscriptionAnalyticsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 
@@ -39,8 +41,24 @@ export const router = createBrowserRouter([
           },
           {
             path: 'subscriptions',
-            element: <PlaceholderPage title="Subscriptions" />,
-          }
+            element: <SubscriptionPlansPage />,
+          },
+          {
+          path: 'subscriptions/analytics',
+            element: <SubscriptionAnalyticsPage />,
+        },{
+          path: 'subscription-invoices',
+            element: <PlaceholderPage title="Subscription Invoices" />,
+        },{
+          path: 'verifications',
+            element: <PlaceholderPage title="Verification Center" />,
+        },{
+          path: 'callbacks',
+            element: <PlaceholderPage title="Callback Engine Queue" />,
+        },{
+          path: 'api-keys',
+            element: <PlaceholderPage title="API Credentials" />,
+        }
           // Future protected routes...
         ],
       },

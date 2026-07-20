@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -13,9 +13,10 @@ class SubscriptionPlanResponse(BaseModel):
     price: Decimal
     duration_days: int
     is_active: bool
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
 
 class SubscriptionRequest(BaseModel):
     plan_id: int

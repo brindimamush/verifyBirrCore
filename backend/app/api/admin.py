@@ -147,7 +147,7 @@ async def create_subscription_plan(
     await db.commit()
     await db.refresh(plan)
 
-    response_data = plan.model_dump()
+    response_data = SubscriptionPlanResponse.model_validate(plan).model_dump(mode="json")
 
     # Save idempotency key
     if idempotency_key:
